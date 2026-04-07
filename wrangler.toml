@@ -1,0 +1,7 @@
+name = "grocery-helper"
+compatibility_date = "2025-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "grocery-helper-db"
+database_id = "15a2f0b9-2120-432f-bb95-9368e2eacf95"
