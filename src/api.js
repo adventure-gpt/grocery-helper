@@ -19,7 +19,7 @@ export const auth = {
 // Items
 export const items = {
   list: () => request('/api/items'),
-  create: (name, category) => request('/api/items', { method: 'POST', body: JSON.stringify({ name, category }) }),
+  create: (name, category, price) => request('/api/items', { method: 'POST', body: JSON.stringify({ name, category, price: price != null ? price : null }) }),
   update: (id, data) => request(`/api/items/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   remove: (id) => request(`/api/items/${id}`, { method: 'DELETE' }),
 };

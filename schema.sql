@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS items (
   name TEXT NOT NULL,
   category TEXT NOT NULL DEFAULT 'Other',
   is_favorite INTEGER NOT NULL DEFAULT 0,
+  price REAL,
   created_at TEXT DEFAULT (datetime('now'))
 );
 

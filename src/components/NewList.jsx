@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { items as itemsApi, lists as listsApi } from '../api';
-import { Plus, Search, Star, ShoppingCart, Check, X, ChevronDown, ChevronRight, Minus } from 'lucide-react';
+import { Plus, Search, Star, ShoppingCart, Check, X, ChevronDown, ChevronRight, Minus, DollarSign } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const CATEGORIES = [
@@ -30,6 +30,7 @@ export default function NewList() {
   const [showAddItem, setShowAddItem] = useState(false);
   const [newItemName, setNewItemName] = useState('');
   const [newItemCategory, setNewItemCategory] = useState('Other');
+  const [newItemPrice, setNewItemPrice] = useState('');
   const [expandedCategories, setExpandedCategories] = useState(new Set(CATEGORIES.map(c => c.name)));
   const searchRef = useRef(null);
 
@@ -125,7 +126,8 @@ export default function NewList() {
     if (!newItemName.trim()) return;
 
     try {
-      const { item } = await itemsApi.create(newItemName.trim(), newItemCategory);
+      const priceVal = newItemPrice.trim() ? parseFloat(newItemPrice) : null;
+      const { item } = await itemsApi.create(newItemName.trim(), newItemCategory, priceVal);
       setAllItems(prev => [...prev, item]);
       setSelectedItems(prev => {
         const next = new Map(prev);
@@ -133,6 +135,7 @@ export default function NewList() {
         return next;
       });
       setNewItemName('');
+      setNewItemPrice('');
       setShowAddItem(false);
     } catch (err) {
       console.error(err);
@@ -180,6 +183,20 @@ export default function NewList() {
   }
 
   const selectedCount = selectedItems.size;
+
+  const estimatedTotal = useMemo(() => {
+    let total = 0;
+    let hasAnyPrice = false;
+    selectedItems.forEach((data, itemId) => {
+      const item = allItems.find(i => i.id === itemId);
+      if (item?.price != null) {
+        hasAnyPrice = true;
+        const qty = parseInt(data.quantity) || 1;
+        total += item.price * qty;
+      }
+    });
+    return hasAnyPrice ? total : null;
+  }, [selectedItems, allItems]);
 
   return (
     <div className="pb-24">
@@ -268,6 +285,21 @@ export default function NewList() {
                       <option key={c.name} value={c.name}>{c.emoji} {c.name}</option>
                     ))}
                   </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-stone-600 mb-1.5">Price <span className="text-stone-400 font-normal">(optional)</span></label>
+                  <div className="relative">
+                    <DollarSign className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={newItemPrice}
+                      onChange={e => setNewItemPrice(e.target.value)}
+                      placeholder="0.00"
+                      className="w-full pl-9 pr-4 py-3 rounded-xl border border-stone-200 bg-stone-50 text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 font-medium"
+                    />
+                  </div>
                 </div>
                 <div className="flex gap-2 pt-2">
                   <button
@@ -402,6 +434,9 @@ export default function NewList() {
                                 }`}
                               >
                                 {item.name}
+                                {item.price != null && (
+                                  <span className="ml-2 text-xs font-semibold text-green-600">${Number(item.price).toFixed(2)}</span>
+                                )}
                               </span>
 
                               <button
@@ -459,6 +494,9 @@ export default function NewList() {
                 <div>
                   <p className="font-bold text-stone-800">
                     {selectedCount} item{selectedCount !== 1 ? 's' : ''} selected
+                    {estimatedTotal != null && (
+                      <span className="ml-2 text-green-600">~${estimatedTotal.toFixed(2)}</span>
+                    )}
                   </p>
                   <p className="text-xs text-stone-500">{listName}</p>
                 </div>

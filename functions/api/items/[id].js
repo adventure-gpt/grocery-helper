@@ -30,6 +30,10 @@ export async function onRequestPut(context) {
     updates.push('is_favorite = ?');
     values.push(body.is_favorite ? 1 : 0);
   }
+  if (body.price !== undefined) {
+    updates.push('price = ?');
+    values.push(body.price != null ? body.price : null);
+  }
 
   if (updates.length === 0) {
     return jsonResponse({ error: 'No updates provided' }, 400);
@@ -41,7 +45,7 @@ export async function onRequestPut(context) {
   ).bind(...values).run();
 
   const updated = await context.env.DB.prepare(
-    'SELECT id, name, category, is_favorite, created_at FROM items WHERE id = ?'
+    'SELECT id, name, category, is_favorite, price, created_at FROM items WHERE id = ?'
   ).bind(id).first();
 
   return jsonResponse({ item: updated });

@@ -15,7 +15,7 @@ export async function onRequestGet(context) {
   }
 
   const { results: listItems } = await context.env.DB.prepare(
-    `SELECT li.id, li.item_id, li.quantity, li.checked, i.name, i.category, i.is_favorite
+    `SELECT li.id, li.item_id, li.quantity, li.checked, i.name, i.category, i.is_favorite, i.price
      FROM list_items li
      JOIN items i ON li.item_id = i.id
      WHERE li.list_id = ?

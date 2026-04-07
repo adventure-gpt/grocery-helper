@@ -108,6 +108,11 @@ export default function SharedList() {
                     }`}>
                       {item.name}
                     </span>
+                    {item.price != null && (
+                      <span className="text-xs font-semibold text-green-600">
+                        ${Number(item.price).toFixed(2)}
+                      </span>
+                    )}
                     {item.quantity && item.quantity !== '1' && (
                       <span className="text-sm font-semibold text-stone-400">
                         x{item.quantity}

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { items as itemsApi } from '../api';
-import { Search, Star, Plus, Trash2, Edit3, Check, X, Package } from 'lucide-react';
+import { Search, Star, Plus, Trash2, Edit3, Check, X, Package, DollarSign } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const CATEGORIES = [
@@ -24,9 +24,11 @@ export default function ItemLibrary() {
   const [showAdd, setShowAdd] = useState(false);
   const [newName, setNewName] = useState('');
   const [newCategory, setNewCategory] = useState('Other');
+  const [newPrice, setNewPrice] = useState('');
   const [editingItem, setEditingItem] = useState(null);
   const [editName, setEditName] = useState('');
   const [editCategory, setEditCategory] = useState('');
+  const [editPrice, setEditPrice] = useState('');
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {
@@ -60,9 +62,11 @@ export default function ItemLibrary() {
     e.preventDefault();
     if (!newName.trim()) return;
     try {
-      const { item } = await itemsApi.create(newName.trim(), newCategory);
+      const priceVal = newPrice.trim() ? parseFloat(newPrice) : null;
+      const { item } = await itemsApi.create(newName.trim(), newCategory, priceVal);
       setAllItems(prev => [...prev, item]);
       setNewName('');
+      setNewPrice('');
       setShowAdd(false);
     } catch (err) {
       console.error(err);
@@ -84,15 +88,18 @@ export default function ItemLibrary() {
     setEditingItem(item.id);
     setEditName(item.name);
     setEditCategory(item.category);
+    setEditPrice(item.price != null ? String(item.price) : '');
   }
 
   async function saveEdit() {
     if (!editName.trim() || !editingItem) return;
+    const priceVal = editPrice.trim() ? parseFloat(editPrice) : null;
     const { item: updated } = await itemsApi.update(editingItem, {
       name: editName.trim(),
       category: editCategory,
+      price: priceVal,
     });
-    setAllItems(prev => prev.map(i => i.id === editingItem ? { ...i, name: updated.name, category: updated.category } : i));
+    setAllItems(prev => prev.map(i => i.id === editingItem ? { ...i, name: updated.name, category: updated.category, price: updated.price } : i));
     setEditingItem(null);
   }
 
@@ -197,6 +204,21 @@ export default function ItemLibrary() {
                     ))}
                   </select>
                 </div>
+                <div>
+                  <label className="block text-sm font-semibold text-stone-600 mb-1.5">Price <span className="text-stone-400 font-normal">(optional)</span></label>
+                  <div className="relative">
+                    <DollarSign className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={newPrice}
+                      onChange={e => setNewPrice(e.target.value)}
+                      placeholder="0.00"
+                      className="w-full pl-9 pr-4 py-3 rounded-xl border border-stone-200 bg-stone-50 text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 font-medium"
+                    />
+                  </div>
+                </div>
                 <div className="flex gap-2 pt-2">
                   <button
                     type="button"
@@ -264,12 +286,12 @@ export default function ItemLibrary() {
                       className="flex items-center gap-3 px-4 py-3 border-b border-stone-50 last:border-b-0 hover:bg-stone-50 transition-colors"
                     >
                       {editingItem === item.id ? (
-                        <div className="flex-1 flex items-center gap-2">
+                        <div className="flex-1 flex items-center gap-2 flex-wrap">
                           <input
                             type="text"
                             value={editName}
                             onChange={e => setEditName(e.target.value)}
-                            className="flex-1 px-3 py-1.5 rounded-lg border border-stone-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-500"
+                            className="flex-1 min-w-[120px] px-3 py-1.5 rounded-lg border border-stone-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-500"
                             autoFocus
                           />
                           <select
@@ -281,6 +303,18 @@ export default function ItemLibrary() {
                               <option key={c.name} value={c.name}>{c.name}</option>
                             ))}
                           </select>
+                          <div className="relative">
+                            <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400" />
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              value={editPrice}
+                              onChange={e => setEditPrice(e.target.value)}
+                              placeholder="Price"
+                              className="w-20 pl-6 pr-2 py-1.5 rounded-lg border border-stone-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-green-500"
+                            />
+                          </div>
                           <button onClick={saveEdit} className="p-1.5 rounded-lg text-green-600 hover:bg-green-50">
                             <Check className="w-4 h-4" />
                           </button>
@@ -291,6 +325,11 @@ export default function ItemLibrary() {
                       ) : (
                         <>
                           <span className="flex-1 font-semibold text-stone-700">{item.name}</span>
+                          {item.price != null && (
+                            <span className="text-sm font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-lg">
+                              ${Number(item.price).toFixed(2)}
+                            </span>
+                          )}
                           <button
                             onClick={() => toggleFavorite(item)}
                             className="p-1.5 rounded-lg hover:bg-orange-50 transition-colors"

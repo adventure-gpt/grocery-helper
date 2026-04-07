@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { lists as listsApi } from '../api';
-import { Check, Share2, Edit3, ArrowLeft, Copy, CheckCircle2, Circle, ShoppingCart, ExternalLink } from 'lucide-react';
+import { Check, Share2, Edit3, ArrowLeft, Copy, CheckCircle2, Circle, ShoppingCart, ExternalLink, DollarSign } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 
@@ -50,6 +50,20 @@ export default function ListView() {
     if (!list || list.items.length === 0) return { checked: 0, total: 0, percent: 0 };
     const checked = list.items.filter(i => i.checked).length;
     return { checked, total: list.items.length, percent: Math.round((checked / list.items.length) * 100) };
+  }, [list]);
+
+  const estimatedTotal = useMemo(() => {
+    if (!list) return null;
+    let total = 0;
+    let hasAnyPrice = false;
+    list.items.forEach(item => {
+      if (item.price != null) {
+        hasAnyPrice = true;
+        const qty = parseInt(item.quantity) || 1;
+        total += item.price * qty;
+      }
+    });
+    return hasAnyPrice ? total : null;
   }, [list]);
 
   async function toggleCheck(listItemId, currentChecked) {
@@ -165,6 +179,12 @@ export default function ListView() {
             All done! Great shopping trip! 🎉
           </motion.p>
         )}
+        {estimatedTotal != null && (
+          <div className="flex items-center gap-1.5 mt-2 text-sm font-semibold text-green-700">
+            <DollarSign className="w-3.5 h-3.5" />
+            Estimated total: ${estimatedTotal.toFixed(2)}
+          </div>
+        )}
       </div>
 
       {/* Items by category */}
@@ -218,6 +238,11 @@ export default function ListView() {
                     }`}>
                       {item.name}
                     </span>
+                    {item.price != null && (
+                      <span className="text-xs font-semibold text-green-600 bg-green-50 px-1.5 py-0.5 rounded-md">
+                        ${Number(item.price).toFixed(2)}
+                      </span>
+                    )}
                     {item.quantity && item.quantity !== '1' && (
                       <span className="text-sm font-semibold text-stone-400 bg-stone-100 px-2 py-0.5 rounded-lg">
                         x{item.quantity}
