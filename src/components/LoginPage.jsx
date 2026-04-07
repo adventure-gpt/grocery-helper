@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useAuth } from './AuthContext';
-import { ShoppingCart, Leaf, Apple, Carrot } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import { motion } from 'framer-motion';
+import BackgroundDecor from './BackgroundDecor';
 
 export default function LoginPage() {
   const { login, register } = useAuth();
@@ -32,50 +33,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-orange-50 flex items-center justify-center p-4">
       {/* Floating food decorations */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          animate={{ y: [0, -15, 0], rotate: [0, 5, 0] }}
-          transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute top-[15%] left-[10%] text-5xl opacity-20"
-        >
-          🥑
-        </motion.div>
-        <motion.div
-          animate={{ y: [0, 12, 0], rotate: [0, -8, 0] }}
-          transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-          className="absolute top-[25%] right-[15%] text-4xl opacity-20"
-        >
-          🍊
-        </motion.div>
-        <motion.div
-          animate={{ y: [0, -10, 0], rotate: [0, 10, 0] }}
-          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-          className="absolute bottom-[20%] left-[20%] text-5xl opacity-20"
-        >
-          🥦
-        </motion.div>
-        <motion.div
-          animate={{ y: [0, 15, 0], rotate: [0, -5, 0] }}
-          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
-          className="absolute bottom-[30%] right-[10%] text-4xl opacity-20"
-        >
-          🍎
-        </motion.div>
-        <motion.div
-          animate={{ y: [0, -8, 0] }}
-          transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut', delay: 1.5 }}
-          className="absolute top-[60%] left-[5%] text-3xl opacity-15"
-        >
-          🥕
-        </motion.div>
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 6.5, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
-          className="absolute top-[10%] right-[40%] text-3xl opacity-15"
-        >
-          🍋
-        </motion.div>
-      </div>
+      <BackgroundDecor />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
