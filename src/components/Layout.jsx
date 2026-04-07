@@ -3,6 +3,7 @@ import { useAuth } from './AuthContext';
 import { ShoppingCart, Plus, Clock, Package, LogOut, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import BackgroundDecor from './BackgroundDecor';
 
 export default function Layout() {
   const { user, logout } = useAuth();
@@ -22,7 +23,8 @@ export default function Layout() {
   ];
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-stone-50 relative">
+      <BackgroundDecor />
       {/* Header */}
       <header className="bg-white border-b border-stone-200 sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
